@@ -1,5 +1,5 @@
 -- User Table: To store users' data
-CREATE TABLE User (
+CREATE TABLE "User" (
     user_id VARCHAR(255) PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -9,8 +9,8 @@ CREATE TABLE User (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_user_username_password ON User(username, password);
-CREATE INDEX idx_user_email_password ON User(email, password);
+CREATE INDEX idx_user_username_password ON "User"(username, password);
+CREATE INDEX idx_user_email_password ON "User"(email, password);
 
 -- Wallet Table: To store user's wallet balance per cryptocurrency
 CREATE TABLE Wallet (
@@ -18,7 +18,7 @@ CREATE TABLE Wallet (
     crypto_type VARCHAR(10) NOT NULL,
     balance DECIMAL(20,8) NOT NULL,
     PRIMARY KEY (user_id, crypto_type),
-    FOREIGN KEY (user_id) REFERENCES User(user_id)
+    FOREIGN KEY (user_id) REFERENCES "User"(user_id)
 );
 
 CREATE INDEX idx_wallet_user_crypto ON Wallet(user_id, crypto_type);
@@ -32,10 +32,23 @@ CREATE TABLE Trade (
     trade_amount DECIMAL(20,8) NOT NULL,
     trade_price DECIMAL(20,8) NOT NULL,
     trade_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES User(user_id)
+    FOREIGN KEY (user_id) REFERENCES "User"(user_id)
 );
 
 CREATE INDEX idx_trade_user_timestamp_crypto_pair ON Trade(user_id, trade_timestamp, crypto_pair);
+
+CREATE TABLE BalanceHistory (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    crypto_type VARCHAR(10) NOT NULL,
+    balance DECIMAL(20,8) NOT NULL,
+    trade_id VARCHAR(255) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (trade_id) REFERENCES Trade(trade_id)
+);
+
+CREATE INDEX idx_BalanceHistory_user_id_crypto_type_trade_id ON BalanceHistory(user_id, trade_id, crypto_type);
 
 -- Price Table: To store price aggregation from different sources
 CREATE TABLE Price (
@@ -43,7 +56,7 @@ CREATE TABLE Price (
     crypto_pair VARCHAR(10) NOT NULL,
     bid_price DECIMAL(20,8) NOT NULL,
     ask_price DECIMAL(20,8) NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    "timestamp" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_price_crypto_pair_timestamp ON Price(crypto_pair, timestamp);
+CREATE INDEX idx_price_crypto_pair_timestamp ON Price(crypto_pair, "timestamp");
