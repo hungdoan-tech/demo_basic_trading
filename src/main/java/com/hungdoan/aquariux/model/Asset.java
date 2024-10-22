@@ -1,10 +1,10 @@
 package com.hungdoan.aquariux.model;
 
 public class Asset {
-    private String userId;
-    private String cryptoType;
-    private Double balance;
-    private int version;
+    private final String userId;
+    private final String cryptoType;
+    private final Double balance;
+    private final int version;
 
     public Asset(String userId, String cryptoType, Double balance, int version) {
         this.userId = userId;
