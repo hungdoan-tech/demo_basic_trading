@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hungdoan.aquariux.dto.api.asset.AssetResponse;
 import com.hungdoan.aquariux.model.Asset;
 import com.hungdoan.aquariux.service.spec.AssetService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/assets")
 public class AssetController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AssetController.class);
 
     private AssetService priceService;
 
@@ -54,7 +58,7 @@ public class AssetController {
         if (etag.equals(ifNoneMatch)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
         }
-
+        LOG.info("test ne HUNG");
         return ResponseEntity.ok()
                 .eTag(etag)
                 .body(assetResponse);

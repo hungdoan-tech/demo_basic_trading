@@ -41,7 +41,7 @@ public class Price {
     @Override
     public String toString() {
         return "Price[" +
-                ", cryptoPair='" + cryptoPair + '\'' +
+                "cryptoPair='" + cryptoPair + '\'' +
                 ", bidPrice=" + bidPrice +
                 ", askPrice=" + askPrice +
                 ']';

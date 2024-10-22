@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOGS" value="./logs"/>
+
+    <appender name="OUR_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{correlationId}] %-5level %logger{36} - %msg%n</Pattern>
+        </layout>
+    </appender>
+
+    <appender name="OUR_ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/vivacon-trace.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%X{correlationId}] %-5p %logger{36} - %m%n</Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 1MB -->
+            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>1MB</maxFileSize>
+            <maxHistory>30</maxHistory> <!-- Keep 30 days of history -->
+            <totalSizeCap>10GB</totalSizeCap> <!-- Optional: Limit the total size of the logs -->
+        </rollingPolicy>
+    </appender>
+
+    <!-- Root logger set to INFO to capture logs from INFO level and above -->
+    <root level="INFO">
+        <appender-ref ref="OUR_CONSOLE"/>
+        <appender-ref ref="OUR_ROLLING_FILE"/>
+    </root>
+
+    <!-- Logger for com.vivacon set to INFO, capturing logs from INFO level and above -->
+    <logger name="com.vivacon" level="INFO" additivity="false">
+        <appender-ref ref="OUR_CONSOLE"/>
+        <appender-ref ref="OUR_ROLLING_FILE"/>
+    </logger>
+</configuration>
