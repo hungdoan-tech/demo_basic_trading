@@ -22,6 +22,11 @@ public class CryptoPairExtractor {
      */
     public String[] extractCurrencies(String cryptoPair) {
 
+        if (cryptoPair == null || cryptoPair.isBlank()) {
+            LOG.error("Empty crypto pair");
+            return new String[]{};
+        }
+
         for (String quoteCurrency : KNOWN_QUOTES) {
 
             if (cryptoPair.endsWith(quoteCurrency)) {
