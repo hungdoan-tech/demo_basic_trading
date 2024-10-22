@@ -1,11 +1,15 @@
 package com.hungdoan.aquariux.common.extract;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
 @Component
 public class CryptoPairExtractor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CryptoPairExtractor.class);
 
     private final Set<String> KNOWN_QUOTES = Set.of("USDT", "ETH", "BTC");
 
@@ -25,13 +29,15 @@ public class CryptoPairExtractor {
                 String baseCurrency = cryptoPair.substring(0, cryptoPair.length() - quoteCurrency.length());
 
                 if (!KNOWN_QUOTES.contains(baseCurrency)) {
-                    throw new IllegalArgumentException("Unknown crypto pair format: " + cryptoPair);
+                    LOG.error("Unknown crypto pair format: " + cryptoPair);
+                    return new String[]{};
                 }
 
                 return new String[]{baseCurrency, quoteCurrency};
             }
         }
 
-        throw new IllegalArgumentException("Unknown crypto pair format: " + cryptoPair);
+        LOG.error("Unknown crypto pair format: " + cryptoPair);
+        return new String[]{};
     }
 }
