@@ -58,7 +58,7 @@ public class CryptoPairTradeService implements TradeService {
     }
 
     @Override
-    public void executeTrade(String userId, String cryptoPair, String tradeType, Double tradeAmount) {
+    public String executeTrade(String userId, String cryptoPair, String tradeType, Double tradeAmount) {
         String[] coins = cryptoPairExtractor.extractCurrencies(cryptoPair);
         if (coins.length != 2) {
             throw new InvalidTrade(String.format("Invalid crypto pair, the system does not support this pair %s",
@@ -80,14 +80,13 @@ public class CryptoPairTradeService implements TradeService {
         Double tradePrice = tradeType.equals("BUY") ? latestPrice.getAskPrice() : latestPrice.getBidPrice();
 
         if (tradeType.equals("BUY")) {
-            buy(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
-            return;
+            return buy(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
         }
-        sell(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
+        return sell(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
     }
 
     @Transactional
-    private void buy(String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, String baseCoin, String quoteCoin) {
+    private String buy(String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, String baseCoin, String quoteCoin) {
 
         for (int attempt = 0; attempt < MAX_RETRIES_OPTIMISTIC_LOCK; attempt++) {
 
@@ -109,7 +108,7 @@ public class CryptoPairTradeService implements TradeService {
 
                 Trade trade = new Trade(idGenerator.getId(), userId, cryptoPair, tradeType, tradeAmount, totalCost, ZonedDateTime.now());
                 tradeRepository.save(trade);
-                return;
+                return trade.getId();
 
             } catch (OptimisticLockingFailureException e) {
                 LOG.warn("Optimistic locking failure for Trade Buy {}, retrying... Attempt: {}",
@@ -129,7 +128,7 @@ public class CryptoPairTradeService implements TradeService {
     }
 
     @Transactional
-    private void sell(String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, String baseCoin, String quoteCoin) {
+    private String sell(String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, String baseCoin, String quoteCoin) {
         for (int attempt = 0; attempt < MAX_RETRIES_OPTIMISTIC_LOCK; attempt++) {
 
             try {
@@ -148,7 +147,7 @@ public class CryptoPairTradeService implements TradeService {
 
                 Trade trade = new Trade(idGenerator.getId(), userId, cryptoPair, tradeType, tradeAmount, totalRevenue, ZonedDateTime.now());
                 tradeRepository.save(trade);
-                return;
+                return trade.getId();
 
             } catch (OptimisticLockingFailureException e) {
                 LOG.warn("Optimistic locking failure for Trade Sell {}, retrying... Attempt: {}",
