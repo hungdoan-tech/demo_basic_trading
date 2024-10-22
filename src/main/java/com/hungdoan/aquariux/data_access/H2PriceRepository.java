@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -61,7 +62,7 @@ public class H2PriceRepository implements PriceRepository {
                 String id = rs.getString("price_id");
                 double bidPrice = rs.getDouble("bid_price");
                 double askPrice = rs.getDouble("ask_price");
-                ZonedDateTime timestamp = rs.getTimestamp("timestamp").toInstant().atZone(ZonedDateTime.now().getZone());
+                ZonedDateTime timestamp = rs.getTimestamp("timestamp").toInstant().atZone(ZoneId.systemDefault());
 
                 return new Price(id, cryptoPair, bidPrice, askPrice, timestamp);
             });
