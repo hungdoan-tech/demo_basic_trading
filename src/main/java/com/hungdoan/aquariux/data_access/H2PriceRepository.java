@@ -9,9 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -27,12 +27,12 @@ public class H2PriceRepository implements PriceRepository {
         this.idGenerator = idGenerator;
     }
 
-    public List<Price> saveAggregatedPrice(Map<String, AggregatedPrice> cryptoPairToAggregatedPrice) {
+    public List<Price> saveAggregatedPrices(Collection<AggregatedPrice> aggregatedPrices) {
         String sql = "INSERT INTO Price (price_id, crypto_pair, bid_price, ask_price, timestamp) " +
                 "VALUES (?, ?, ?, ?, ?)";
 
         List<Price> prices = new LinkedList<>();
-        for (AggregatedPrice price : cryptoPairToAggregatedPrice.values()) {
+        for (AggregatedPrice price : aggregatedPrices) {
 
             String id = idGenerator.getId();
             ZonedDateTime now = ZonedDateTime.now();

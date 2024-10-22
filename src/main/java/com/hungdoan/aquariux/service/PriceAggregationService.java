@@ -1,8 +1,11 @@
 package com.hungdoan.aquariux.service;
 
+import com.hungdoan.aquariux.data_access.spec.PriceRepository;
 import com.hungdoan.aquariux.dto.AggregatedPrice;
 import com.hungdoan.aquariux.dto.BinancePrice;
 import com.hungdoan.aquariux.dto.HoubiPrice;
+import com.hungdoan.aquariux.model.Price;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,39 +14,75 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class PriceAggregationService {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(PriceAggregationService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PriceAggregationService.class);
+
+    private static final long cacheTTL = 10000; // TTL in milliseconds
 
     private final RestTemplate restTemplate;
 
     private final Set<String> cryptoPairs;
 
+    private final PriceRepository priceRepository;
+
+    private final ConcurrentHashMap<String, CachedPrice> priceCache;
+
     @Autowired
-    public PriceAggregationService(RestTemplate restTemplate) {
+    public PriceAggregationService(RestTemplate restTemplate, PriceRepository priceRepository) {
         this.restTemplate = restTemplate;
+        this.priceRepository = priceRepository;
         this.cryptoPairs = new HashSet<>();
         this.cryptoPairs.add("ETHUSDT");
         this.cryptoPairs.add("BTCUSDT");
+        this.priceCache = new ConcurrentHashMap<>();
     }
 
+    public Optional<Price> getAggregatedPrice(String cryptoPair) {
+        CachedPrice cachedPrice = priceCache.get(cryptoPair.toUpperCase());
+        if (cachedPrice != null && !cachedPrice.isExpired()) {
+            return Optional.of(cachedPrice.getPrice());
+        }
+
+        Optional<Price> price = priceRepository.findPrice(cryptoPair);
+        if (price.isPresent()) {
+            return price;
+        }
+
+        LOG.error("Price not found in cache or DB for pair: {}", cryptoPair);
+        scheduleUpdateAggregatedPrice();
+
+        return Optional.empty();
+    }
+
+
     @Scheduled(fixedRate = 10000)
-    public void aggregatePrices() {
+    public List<Price> scheduleUpdateAggregatedPrice() {
 
         BinancePrice[] binancePrices = fetchBinancePrices();
+        BinancePrice[] filteredBinancePrices = Arrays.stream(binancePrices)
+                .filter(price -> cryptoPairs.contains(price.getSymbol().toUpperCase()))
+                .toArray(BinancePrice[]::new);
 
         HoubiPrice.HoubiTicker[] houbiPrices = fetchHuobiPrices();
+        HoubiPrice.HoubiTicker[] filteredHoubiPrice = Arrays.stream(houbiPrices)
+                .filter(price -> cryptoPairs.contains(price.getSymbol().toUpperCase()))
+                .toArray(HoubiPrice.HoubiTicker[]::new);
 
-        Map<String, AggregatedPrice> bestPrices = getBestPrices(binancePrices, houbiPrices);
+        Map<String, AggregatedPrice> bestPrices = getBestPrices(filteredBinancePrices, filteredHoubiPrice);
+        List<Price> prices = priceRepository.saveAggregatedPrices(bestPrices.values());
 
-        saveBestPrices(bestPrices.values());
+        prices.forEach((price) -> priceCache.put(price.getCryptoPair(), new CachedPrice(price)));
+        return prices;
     }
 
     private BinancePrice[] fetchBinancePrices() {
@@ -52,15 +91,13 @@ public class PriceAggregationService {
             ResponseEntity<BinancePrice[]> response = restTemplate.getForEntity(binanceUrl, BinancePrice[].class);
 
             if (response.getBody() == null) {
-                System.out.println("Failed to fetch prices from Binance: the body is null");
+                LOG.error("Failed to fetch prices from Binance: the body is null");
                 return new BinancePrice[0];
             }
 
-            return Arrays.stream(response.getBody())
-                    .filter(price -> cryptoPairs.contains(price.getSymbol().toUpperCase()))
-                    .toArray(BinancePrice[]::new);
+            return response.getBody();
         } catch (Exception e) {
-            System.out.println("Failed to fetch prices from Binance: " + e.getMessage());
+            LOG.error("Failed to fetch prices from Binance: " + e.getMessage());
             return new BinancePrice[0];
         }
     }
@@ -69,13 +106,15 @@ public class PriceAggregationService {
         try {
             String huobiUrl = "https://api.huobi.pro/market/tickers";
             ResponseEntity<HoubiPrice> response = restTemplate.getForEntity(huobiUrl, HoubiPrice.class);
-            HoubiPrice.HoubiTicker[] data = response.getBody().getData();
+            if (response.getBody() == null) {
+                LOG.error("Failed to fetch prices from Houbi: the body is null");
+                return new HoubiPrice.HoubiTicker[0];
+            }
 
-            return Arrays.stream(data)
-                    .filter(price -> cryptoPairs.contains(price.getSymbol().toUpperCase()))
-                    .toArray(HoubiPrice.HoubiTicker[]::new);
+            return response.getBody().getData();
+
         } catch (Exception e) {
-            System.out.println("Failed to fetch prices from Huobi: " + e.getMessage());
+            LOG.error("Failed to fetch prices from Huobi: " + e.getMessage());
             return new HoubiPrice.HoubiTicker[0];
         }
     }
@@ -90,7 +129,7 @@ public class PriceAggregationService {
         }
 
         for (HoubiPrice.HoubiTicker houbiPrice : houbiPrices) {
-            
+
             String symbol = houbiPrice.getSymbol().toUpperCase();
 
             BinancePrice binancePrice = binancePriceMap.get(symbol);
@@ -110,7 +149,25 @@ public class PriceAggregationService {
         return bestPrices;
     }
 
-    private void saveBestPrices(Collection<AggregatedPrice> bestPrices) {
-        //TODO
+    public static class CachedPrice {
+        private final Price price;
+        private final long timestamp;
+
+        public CachedPrice(Price price) {
+            this.price = price;
+            this.timestamp = System.currentTimeMillis();
+        }
+
+        public Price getPrice() {
+            return price;
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        private boolean isExpired() {
+            return System.currentTimeMillis() - getTimestamp() > cacheTTL;
+        }
     }
 }

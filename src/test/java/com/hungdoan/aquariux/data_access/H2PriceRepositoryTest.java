@@ -10,9 +10,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.time.ZonedDateTime;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,13 +36,11 @@ class H2PriceRepositoryTest {
 
     @Test
     void testSaveAggregatedPrice() {
-        Map<String, AggregatedPrice> cryptoPairToAggregatedPrice = new HashMap<>();
         AggregatedPrice aggregatedPrice = new AggregatedPrice("BTCUSDT", 50000.0, 51000.0);
-        cryptoPairToAggregatedPrice.put("BTCUSDT", aggregatedPrice);
 
         when(idGenerator.getId()).thenReturn("price1");
 
-        List<Price> prices = priceRepository.saveAggregatedPrice(cryptoPairToAggregatedPrice);
+        List<Price> prices = priceRepository.saveAggregatedPrices(Collections.singletonList(aggregatedPrice));
 
         assertEquals(1, prices.size());
         assertEquals("BTCUSDT", prices.get(0).getCryptoPair());

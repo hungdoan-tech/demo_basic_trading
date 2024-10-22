@@ -12,7 +12,7 @@ public class Price {
 
     public Price(String id, String cryptoPair, Double bidPrice, Double askPrice, ZonedDateTime timestamp) {
         this.id = id;
-        this.cryptoPair = cryptoPair;
+        this.cryptoPair = cryptoPair.toUpperCase();
         this.bidPrice = bidPrice;
         this.askPrice = askPrice;
         this.timestamp = timestamp;
