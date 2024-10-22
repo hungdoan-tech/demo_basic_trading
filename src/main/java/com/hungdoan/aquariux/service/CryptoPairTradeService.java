@@ -64,6 +64,20 @@ public class CryptoPairTradeService implements TradeService {
 
 
     @Override
+    public Page<TradeHistoryResponse> fetchHistory(String userId, PageRequest pageRequest) {
+        List<Trade> trades = tradeRepository.getAllTrades(userId, pageRequest);
+        List<TradeHistoryResponse> tradeHistoryResponse = trades.stream().map(trade -> new TradeHistoryResponse(trade.getId(),
+                trade.getUserId(), trade.getCryptoPair(), trade.getTradeType(), trade.getTradeAmount(),
+                trade.getTradePrice(), trade.getTradeTimestamp())).collect(Collectors.toUnmodifiableList());
+
+        long totalElements = tradeRepository.countTrades(userId);  // Get total count
+        String lastId = trades.isEmpty() ? null : trades.get(trades.size() - 1).getId();  // Get the last ID
+
+        return new Page<TradeHistoryResponse>(tradeHistoryResponse, lastId, pageRequest.getPageSize(), totalElements);
+    }
+
+
+    @Override
     public String executeTrade(String userId, String cryptoPair, String tradeType, Double tradeAmount) {
         String[] coins = cryptoPairExtractor.extractCurrencies(cryptoPair);
         if (coins.length != 2) {
@@ -89,19 +103,6 @@ public class CryptoPairTradeService implements TradeService {
             return buy(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
         }
         return sell(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
-    }
-
-    @Override
-    public Page<TradeHistoryResponse> fetchHistory(String userId, PageRequest pageRequest) {
-        List<Trade> trades = tradeRepository.getAllTrades(userId, pageRequest);
-        List<TradeHistoryResponse> tradeHistoryResponse = trades.stream().map(trade -> new TradeHistoryResponse(trade.getId(),
-                trade.getUserId(), trade.getCryptoPair(), trade.getTradeType(), trade.getTradeAmount(),
-                trade.getTradePrice(), trade.getTradeTimestamp())).collect(Collectors.toUnmodifiableList());
-
-        long totalElements = tradeRepository.countTrades(userId);  // Get total count
-        String lastId = trades.isEmpty() ? null : trades.get(trades.size() - 1).getId();  // Get the last ID
-
-        return new Page<TradeHistoryResponse>(tradeHistoryResponse, lastId, pageRequest.getPageSize(), totalElements);
     }
 
     @Transactional
