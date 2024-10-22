@@ -17,7 +17,7 @@ public final class IdGenerator {
 
         String generatorStr = environment.getProperty("IdGenerator");
 
-        if (generatorStr == null){
+        if (generatorStr == null) {
             throw new IllegalStateException("Missing IdGenerator er.properties value");
         }
 
@@ -38,8 +38,6 @@ public final class IdGenerator {
         generator = instance;
         LOG.info("Load complete Id Generator " + generator + " sample=" + generator.getId());
     }
-
-    private IdGenerator() {}
 
     /**
      * @return a unique id

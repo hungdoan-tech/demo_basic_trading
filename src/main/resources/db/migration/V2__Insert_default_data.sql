@@ -1,8 +1,8 @@
 -- Insert default user into the User table
 INSERT INTO "User" (user_id, username, password, email, role, created_at, updated_at)
 VALUES
-('user-1', 'testuser1', 'password1', 'testuser1@example.com', 'USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('user-2', 'testuser2', 'password2', 'testuser2@example.com', 'USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('user-1', 'testuser1', '$2a$12$ZsAuPSeIr1Ji3MJLgcSE3.Pqo3xtCwaCCjZDYLXp1VAwMmoE0Kzwu', 'testuser1@example.com', 'USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('user-2', 'testuser2', '$2a$12$ZsAuPSeIr1Ji3MJLgcSE3.Pqo3xtCwaCCjZDYLXp1VAwMmoE0Kzwu', 'testuser2@example.com', 'USER', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Insert default wallet data for test users
 INSERT INTO Wallet (user_id, crypto_type, balance)
