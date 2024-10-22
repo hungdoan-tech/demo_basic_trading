@@ -41,10 +41,10 @@ CREATE TABLE BalanceHistory (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     crypto_type VARCHAR(10) NOT NULL,
-    balance DECIMAL(20,8) NOT NULL,
+    from_balance DECIMAL(20,8) NOT NULL,
+    to_balance DECIMAL(20,8) NOT NULL,
     trade_id VARCHAR(255) NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (user_id) REFERENCES "User"(user_id),
     FOREIGN KEY (trade_id) REFERENCES Trade(trade_id)
 );
 

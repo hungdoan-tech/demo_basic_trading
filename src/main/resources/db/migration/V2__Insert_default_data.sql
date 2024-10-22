@@ -14,9 +14,9 @@ VALUES
 ('user-2', 'BTC', 0.1),
 ('user-2', 'ETH', 2.0);
 
-INSERT INTO Price (price_id, crypto_pair, bid_price, ask_price, price_source, timestamp) VALUES
-('1', 'ETHUSDT', 1800.00, 1805.00, 'Binance', CURRENT_TIMESTAMP),
-('2', 'BTCUSDT', 30000.00, 30050.00, 'Binance', CURRENT_TIMESTAMP);
+INSERT INTO Price (price_id, crypto_pair, bid_price, ask_price, "timestamp") VALUES
+('1', 'ETHUSDT', 1800.00, 1805.00, CURRENT_TIMESTAMP),
+('2', 'BTCUSDT', 30000.00, 30050.00, CURRENT_TIMESTAMP);
 
 -- Insert a default trade entry for testing
 INSERT INTO Trade (trade_id, user_id, crypto_pair, trade_type, trade_amount, trade_price, trade_timestamp) VALUES
