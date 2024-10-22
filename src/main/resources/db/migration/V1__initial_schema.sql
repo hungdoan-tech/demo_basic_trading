@@ -13,10 +13,11 @@ CREATE INDEX idx_user_username_password ON "User"(username, password);
 CREATE INDEX idx_user_email_password ON "User"(email, password);
 
 -- Wallet Table: To store user's wallet balance per cryptocurrency
-CREATE TABLE Wallet (
+CREATE TABLE Asset (
     user_id VARCHAR(255) NOT NULL,
     crypto_type VARCHAR(10) NOT NULL,
     balance DECIMAL(20,8) NOT NULL,
+    version INT NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id, crypto_type),
     FOREIGN KEY (user_id) REFERENCES "User"(user_id)
 );
