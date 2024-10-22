@@ -4,7 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import static com.hungdoan.aquariux.service.CryptoCoinAssetService.KNOWN_QUOTES;
+import static com.hungdoan.aquariux.common.validation.CryptoPairValidator.VALID_CRYPTO_PAIRS;
+import static com.hungdoan.aquariux.common.validation.CryptoPairValidator.VALID_CRYPTO_QUOTES;
 
 @Component
 public class CryptoPairExtractor {
@@ -25,13 +26,18 @@ public class CryptoPairExtractor {
             return new String[]{};
         }
 
-        for (String quoteCurrency : KNOWN_QUOTES) {
+        if (!VALID_CRYPTO_PAIRS.contains(cryptoPair)) {
+            LOG.error("Invalid/Not support crypto pair {}", cryptoPair);
+            return new String[]{};
+        }
+
+        for (String quoteCurrency : VALID_CRYPTO_QUOTES) {
 
             if (cryptoPair.endsWith(quoteCurrency)) {
 
                 String baseCurrency = cryptoPair.substring(0, cryptoPair.length() - quoteCurrency.length());
 
-                if (!KNOWN_QUOTES.contains(baseCurrency)) {
+                if (!VALID_CRYPTO_QUOTES.contains(baseCurrency)) {
                     LOG.error("Unknown crypto pair format: " + cryptoPair);
                     return new String[]{};
                 }

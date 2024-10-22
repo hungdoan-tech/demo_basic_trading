@@ -9,6 +9,7 @@ import com.hungdoan.aquariux.dto.api.trade.TradeResponse;
 import com.hungdoan.aquariux.dto.api.trade_history.TradeHistoryResponse;
 import com.hungdoan.aquariux.model.Trade;
 import com.hungdoan.aquariux.service.spec.TradeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,7 +38,7 @@ public class TradeController {
 
 
     @PostMapping
-    public ResponseEntity<TradeResponse> executeTrade(@RequestBody TradeRequest tradeRequest) {
+    public ResponseEntity<TradeResponse> executeTrade(@Valid @RequestBody TradeRequest tradeRequest) {
         CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = principal.getUser().getUserId();
 

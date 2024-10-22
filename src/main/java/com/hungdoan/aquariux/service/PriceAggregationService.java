@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.hungdoan.aquariux.service.CryptoCoinAssetService.KNOW_CRYPTO_PAIRS;
+import static com.hungdoan.aquariux.common.validation.CryptoPairValidator.VALID_CRYPTO_PAIRS;
 
 @Service
 public class PriceAggregationService implements PriceService {
@@ -47,7 +47,7 @@ public class PriceAggregationService implements PriceService {
     public Map<String, Price> getPrices() {
         Map<String, Price> prices = new HashMap<>();
 
-        for (String cryptoPair : KNOW_CRYPTO_PAIRS) {
+        for (String cryptoPair : VALID_CRYPTO_PAIRS) {
 
             Optional<Price> priceOpt = getPrice(cryptoPair);
             if (priceOpt.isPresent()) {
@@ -84,12 +84,12 @@ public class PriceAggregationService implements PriceService {
 
         BinancePrice[] binancePrices = fetchBinancePrices();
         BinancePrice[] filteredBinancePrices = Arrays.stream(binancePrices)
-                .filter(price -> KNOW_CRYPTO_PAIRS.contains(price.getSymbol().toUpperCase()))
+                .filter(price -> VALID_CRYPTO_PAIRS.contains(price.getSymbol().toUpperCase()))
                 .toArray(BinancePrice[]::new);
 
         HoubiPrice.HoubiTicker[] houbiPrices = fetchHuobiPrices();
         HoubiPrice.HoubiTicker[] filteredHoubiPrice = Arrays.stream(houbiPrices)
-                .filter(price -> KNOW_CRYPTO_PAIRS.contains(price.getSymbol().toUpperCase()))
+                .filter(price -> VALID_CRYPTO_PAIRS.contains(price.getSymbol().toUpperCase()))
                 .toArray(HoubiPrice.HoubiTicker[]::new);
 
         Map<String, AggregatedPrice> bestPrices = getBestPrices(filteredBinancePrices, filteredHoubiPrice);
