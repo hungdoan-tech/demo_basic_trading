@@ -11,10 +11,8 @@ import org.springframework.stereotype.Component;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -32,16 +30,17 @@ public class JwtProvider {
 
     public String generateToken(UserDetails user) {
         Map<String, Object> claims = new HashMap<>();
-        SimpleGrantedAuthority authority = (SimpleGrantedAuthority) user.getAuthorities().iterator().next();
-        List<String> roles = Collections.singletonList(authority.getAuthority());
+        SimpleGrantedAuthority userId = (SimpleGrantedAuthority) user.getAuthorities().iterator().next();
+        SimpleGrantedAuthority userRole = (SimpleGrantedAuthority) user.getAuthorities().iterator().next();
+        claims.put("id", userId.getAuthority());
         claims.put("username", user.getUsername());
-        claims.put("role", roles.get(0));
+        claims.put("role", userRole.getAuthority());
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
-                .setExpiration(Date.from(ZonedDateTime.now().plusHours(2).toInstant())) // Token valid for 2 hours
+                .setExpiration(Date.from(ZonedDateTime.now().plusMinutes(5).toInstant()))
                 .signWith(SignatureAlgorithm.RS256, privateKey)
                 .compact();
     }

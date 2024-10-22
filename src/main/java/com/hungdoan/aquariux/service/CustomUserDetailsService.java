@@ -25,10 +25,18 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = cache.get(username);
         if (user == null) {
-            Optional<User> loadedUser = userRepository.findByUsername(username);
+
+            Optional<User> loadedUser;
+            if (username.contains("@")) {
+                loadedUser = userRepository.findByEmail(username);
+            } else {
+                loadedUser = userRepository.findByUsername(username);
+            }
+
             if (loadedUser.isEmpty()) {
                 throw new UsernameNotFoundException("Can not find username claim of jwt " + username);
             }
+
             cache.put(username, loadedUser.get());
             user = loadedUser.get();
         }

@@ -2,6 +2,7 @@ package com.hungdoan.aquariux.transport;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hungdoan.aquariux.dto.CustomUserDetails;
 import com.hungdoan.aquariux.dto.api.asset.AssetResponse;
 import com.hungdoan.aquariux.model.Asset;
 import com.hungdoan.aquariux.service.spec.AssetService;
@@ -10,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,9 +44,11 @@ public class AssetController {
         this.hashingFunc = MessageDigest.getInstance("SHA-256");
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<AssetResponse> getAssetsBalance(@RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch,
-                                                          @PathVariable("userId") String userId) throws JsonProcessingException {
+    @GetMapping
+    public ResponseEntity<AssetResponse> getAssetsBalance(@RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch) throws JsonProcessingException {
+        CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userId = principal.getUser().getUserId();
+
         Collection<Asset> assets = priceService.getAssets(userId);
         List<AssetResponse.AssetBalance> assetBalances = new LinkedList<>();
         for (Asset asset : assets) {

@@ -1,4 +1,4 @@
-package com.hungdoan.aquariux;
+package com.hungdoan.aquariux.common.key;
 
 import java.io.FileWriter;
 import java.io.IOException;
