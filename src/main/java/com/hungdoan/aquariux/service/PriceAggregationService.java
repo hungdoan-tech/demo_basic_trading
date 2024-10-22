@@ -32,7 +32,7 @@ public class PriceAggregationService implements PriceService {
 
     private final RestTemplate restTemplate;
 
-    private final Set<String> cryptoPairs;
+    private final Set<String> validCryptoPairs;
 
     private final PriceRepository priceRepository;
 
@@ -42,10 +42,28 @@ public class PriceAggregationService implements PriceService {
     public PriceAggregationService(RestTemplate restTemplate, PriceRepository priceRepository) {
         this.restTemplate = restTemplate;
         this.priceRepository = priceRepository;
-        this.cryptoPairs = new HashSet<>();
-        this.cryptoPairs.add("ETHUSDT");
-        this.cryptoPairs.add("BTCUSDT");
+        this.validCryptoPairs = new HashSet<>();
+        this.validCryptoPairs.add("ETHUSDT");
+        this.validCryptoPairs.add("BTCUSDT");
         this.priceCache = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public Map<String, Price> getPrices() {
+        Map<String, Price> prices = new HashMap<>();
+
+        // Loop through all crypto pairs we are tracking
+        for (String cryptoPair : validCryptoPairs) {
+            // Fetch the price from the cache or DB
+            Optional<Price> priceOpt = getPrice(cryptoPair);
+            if (priceOpt.isPresent()) {
+                prices.put(cryptoPair, priceOpt.get());
+            } else {
+                LOG.warn("Price for {} could not be found in cache or DB", cryptoPair);
+            }
+        }
+
+        return prices;
     }
 
     @Override
@@ -72,12 +90,12 @@ public class PriceAggregationService implements PriceService {
 
         BinancePrice[] binancePrices = fetchBinancePrices();
         BinancePrice[] filteredBinancePrices = Arrays.stream(binancePrices)
-                .filter(price -> cryptoPairs.contains(price.getSymbol().toUpperCase()))
+                .filter(price -> validCryptoPairs.contains(price.getSymbol().toUpperCase()))
                 .toArray(BinancePrice[]::new);
 
         HoubiPrice.HoubiTicker[] houbiPrices = fetchHuobiPrices();
         HoubiPrice.HoubiTicker[] filteredHoubiPrice = Arrays.stream(houbiPrices)
-                .filter(price -> cryptoPairs.contains(price.getSymbol().toUpperCase()))
+                .filter(price -> validCryptoPairs.contains(price.getSymbol().toUpperCase()))
                 .toArray(HoubiPrice.HoubiTicker[]::new);
 
         Map<String, AggregatedPrice> bestPrices = getBestPrices(filteredBinancePrices, filteredHoubiPrice);
