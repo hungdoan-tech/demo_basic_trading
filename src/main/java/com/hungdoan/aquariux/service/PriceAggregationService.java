@@ -5,6 +5,7 @@ import com.hungdoan.aquariux.dto.AggregatedPrice;
 import com.hungdoan.aquariux.dto.BinancePrice;
 import com.hungdoan.aquariux.dto.HoubiPrice;
 import com.hungdoan.aquariux.model.Price;
+import com.hungdoan.aquariux.service.spec.PriceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class PriceAggregationService {
+public class PriceAggregationService implements PriceService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PriceAggregationService.class);
 
@@ -47,7 +48,8 @@ public class PriceAggregationService {
         this.priceCache = new ConcurrentHashMap<>();
     }
 
-    public Optional<Price> getAggregatedPrice(String cryptoPair) {
+    @Override
+    public Optional<Price> getPrice(String cryptoPair) {
         CachedPrice cachedPrice = priceCache.get(cryptoPair.toUpperCase());
         if (cachedPrice != null && !cachedPrice.isExpired()) {
             return Optional.of(cachedPrice.getPrice());

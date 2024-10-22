@@ -64,7 +64,7 @@ class PriceAggregationServiceTest {
         priceAggregationService.scheduleUpdateAggregatedPrice();
         verify(priceRepository, times(1)).saveAggregatedPrices(any());
 
-        Optional<Price> btcusdt = priceAggregationService.getAggregatedPrice("BTCUSDT");
+        Optional<Price> btcusdt = priceAggregationService.getPrice("BTCUSDT");
         Assertions.assertTrue(btcusdt.isPresent());
         Assertions.assertTrue(btcusdt.get().getAskPrice().equals(51000.0));
         Assertions.assertTrue(btcusdt.get().getBidPrice().equals(50500.0));

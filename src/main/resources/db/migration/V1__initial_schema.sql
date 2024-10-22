@@ -37,19 +37,6 @@ CREATE TABLE Trade (
 
 CREATE INDEX idx_trade_user_timestamp_crypto_pair ON Trade(user_id, trade_timestamp, crypto_pair);
 
-CREATE TABLE BalanceHistory (
-    id SERIAL PRIMARY KEY,
-    user_id VARCHAR(255) NOT NULL,
-    crypto_type VARCHAR(10) NOT NULL,
-    from_balance DECIMAL(20,8) NOT NULL,
-    to_balance DECIMAL(20,8) NOT NULL,
-    trade_id VARCHAR(255) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES "User"(user_id),
-    FOREIGN KEY (trade_id) REFERENCES Trade(trade_id)
-);
-
-CREATE INDEX idx_BalanceHistory_user_id_crypto_type_trade_id ON BalanceHistory(user_id, trade_id, crypto_type);
-
 -- Price Table: To store price aggregation from different sources
 CREATE TABLE Price (
     price_id VARCHAR(255) PRIMARY KEY,
