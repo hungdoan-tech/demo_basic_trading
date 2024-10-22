@@ -37,4 +37,13 @@ public class Price {
     public ZonedDateTime getTimestamp() {
         return timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "Price[" +
+                ", cryptoPair='" + cryptoPair + '\'' +
+                ", bidPrice=" + bidPrice +
+                ", askPrice=" + askPrice +
+                ']';
+    }
 }

@@ -4,6 +4,9 @@ import com.hungdoan.aquariux.common.extract.CryptoPairExtractor;
 import com.hungdoan.aquariux.common.id_generator.IdGenerator;
 import com.hungdoan.aquariux.data_access.spec.AssetRepository;
 import com.hungdoan.aquariux.data_access.spec.TradeRepository;
+import com.hungdoan.aquariux.dto.api.page.Page;
+import com.hungdoan.aquariux.dto.api.page.PageRequest;
+import com.hungdoan.aquariux.dto.api.trade_history.TradeHistoryResponse;
 import com.hungdoan.aquariux.exception.InvalidTrade;
 import com.hungdoan.aquariux.exception.OptimisticLockingFailureException;
 import com.hungdoan.aquariux.model.Asset;
@@ -19,9 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class CryptoPairTradeService implements TradeService {
@@ -57,6 +62,7 @@ public class CryptoPairTradeService implements TradeService {
         validTradeTypes.add("SELL");
     }
 
+
     @Override
     public String executeTrade(String userId, String cryptoPair, String tradeType, Double tradeAmount) {
         String[] coins = cryptoPairExtractor.extractCurrencies(cryptoPair);
@@ -83,6 +89,19 @@ public class CryptoPairTradeService implements TradeService {
             return buy(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
         }
         return sell(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
+    }
+
+    @Override
+    public Page<TradeHistoryResponse> fetchHistory(String userId, PageRequest pageRequest) {
+        List<Trade> trades = tradeRepository.getAllTrades(userId, pageRequest);
+        List<TradeHistoryResponse> tradeHistoryResponse = trades.stream().map(trade -> new TradeHistoryResponse(trade.getId(),
+                trade.getUserId(), trade.getCryptoPair(), trade.getTradeType(), trade.getTradeAmount(),
+                trade.getTradePrice(), trade.getTradeTimestamp())).collect(Collectors.toUnmodifiableList());
+
+        long totalElements = tradeRepository.countTrades(userId);  // Get total count
+        String lastId = trades.isEmpty() ? null : trades.get(trades.size() - 1).getId();  // Get the last ID
+
+        return new Page<TradeHistoryResponse>(tradeHistoryResponse, lastId, pageRequest.getPageSize(), totalElements);
     }
 
     @Transactional

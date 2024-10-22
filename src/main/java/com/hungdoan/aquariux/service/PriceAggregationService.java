@@ -100,8 +100,9 @@ public class PriceAggregationService implements PriceService {
 
         Map<String, AggregatedPrice> bestPrices = getBestPrices(filteredBinancePrices, filteredHoubiPrice);
         List<Price> prices = priceRepository.saveAggregatedPrices(bestPrices.values());
-
         prices.forEach((price) -> priceCache.put(price.getCryptoPair(), new CachedPrice(price)));
+
+        LOG.info("Update new price {}", prices);
         return prices;
     }
 

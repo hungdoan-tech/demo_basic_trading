@@ -32,6 +32,9 @@ public class HoubiPrice {
         private Double vol;
         private Double count;
 
+        private HoubiTicker() {
+        }
+
         public HoubiTicker(String symbol, Double bid, Double ask) {
             this.symbol = symbol;
             this.bid = bid;

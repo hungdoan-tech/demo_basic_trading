@@ -29,7 +29,7 @@ public class H2PriceRepository implements PriceRepository {
     }
 
     public List<Price> saveAggregatedPrices(Collection<AggregatedPrice> aggregatedPrices) {
-        String sql = "INSERT INTO Price (price_id, crypto_pair, bid_price, ask_price, timestamp) " +
+        String sql = "INSERT INTO Price (id, crypto_pair, bid_price, ask_price, \"timestamp\") " +
                 "VALUES (?, ?, ?, ?, ?)";
 
         List<Price> prices = new LinkedList<>();
@@ -59,7 +59,7 @@ public class H2PriceRepository implements PriceRepository {
         try {
 
             Price price = jdbcTemplate.queryForObject(sql, new Object[]{cryptoPair}, (rs, rowNum) -> {
-                String id = rs.getString("price_id");
+                String id = rs.getString("id");
                 double bidPrice = rs.getDouble("bid_price");
                 double askPrice = rs.getDouble("ask_price");
                 ZonedDateTime timestamp = rs.getTimestamp("timestamp").toInstant().atZone(ZoneId.systemDefault());
