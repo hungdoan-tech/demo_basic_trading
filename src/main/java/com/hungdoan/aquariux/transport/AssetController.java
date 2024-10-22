@@ -29,11 +29,11 @@ public class AssetController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AssetController.class);
 
-    private AssetService priceService;
+    private final AssetService priceService;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    private MessageDigest hashingFunc;
+    private final MessageDigest hashingFunc;
 
     @Autowired
     public AssetController(AssetService priceService,

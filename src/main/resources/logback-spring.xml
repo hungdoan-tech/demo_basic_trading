@@ -24,7 +24,7 @@
     </appender>
 
     <!-- Root logger set to INFO to capture logs from INFO level and above -->
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="OUR_CONSOLE"/>
         <appender-ref ref="OUR_ROLLING_FILE"/>
     </root>

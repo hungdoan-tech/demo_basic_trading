@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequestMapping("/api/v1/prices")
 public class PriceController {
 
-    private PriceService priceService;
+    private final PriceService priceService;
 
     @Autowired
     public PriceController(PriceService priceService) {
@@ -37,7 +37,7 @@ public class PriceController {
     }
 
     @GetMapping("/{cryptoPair}")
-    public ResponseEntity<?> getLatestPrice(@PathVariable("cryptoPair") String cryptoPair) {
+    public ResponseEntity<PriceResponse> getLatestPrice(@PathVariable("cryptoPair") String cryptoPair) {
         Optional<Price> optionalPrice = priceService.getPrice(cryptoPair);
         if (optionalPrice.isEmpty()) {
             return ResponseEntity.notFound().build();
