@@ -4,14 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Set;
+import static com.hungdoan.aquariux.service.CryptoCoinAssetService.KNOWN_QUOTES;
 
 @Component
 public class CryptoPairExtractor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CryptoPairExtractor.class);
-
-    private final Set<String> KNOWN_QUOTES = Set.of("USDT", "ETH", "BTC");
 
     /**
      * Extracts the base and quote currencies from a crypto pair string.

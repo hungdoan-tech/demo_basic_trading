@@ -43,11 +43,11 @@ public class TradeController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getTradeHistory(@PathVariable(value = "userId") String userId,
-                                             @RequestParam(value = "_order", required = false) Optional<String> order,
-                                             @RequestParam(value = "_sort", required = false) Optional<String> sort,
-                                             @RequestParam(value = "limit", required = false) Optional<Integer> pageSize,
-                                             @RequestParam(value = "lastId", required = false) Optional<String> lastId) {
+    public ResponseEntity<Page<TradeHistoryResponse>> getTradeHistory(@PathVariable(value = "userId") String userId,
+                                                                      @RequestParam(value = "_order", required = false) Optional<String> order,
+                                                                      @RequestParam(value = "_sort", required = false) Optional<String> sort,
+                                                                      @RequestParam(value = "limit", required = false) Optional<Integer> pageSize,
+                                                                      @RequestParam(value = "lastId", required = false) Optional<String> lastId) {
 
         String actualSortField = sort.orElse("id");
         if (!fieldsExtractor.checkValidField(actualSortField, Trade.class)) {
