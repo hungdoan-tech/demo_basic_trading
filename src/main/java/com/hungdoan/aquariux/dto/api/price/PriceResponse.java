@@ -8,6 +8,10 @@ public class PriceResponse {
     private Double askPrice;
     private ZonedDateTime timestamp;
 
+    public PriceResponse() {
+
+    }
+
     public PriceResponse(String cryptoPair, Double bidPrice, Double askPrice, ZonedDateTime timestamp) {
         this.cryptoPair = cryptoPair;
         this.bidPrice = bidPrice;
@@ -29,5 +33,21 @@ public class PriceResponse {
 
     public ZonedDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public void setCryptoPair(String cryptoPair) {
+        this.cryptoPair = cryptoPair;
+    }
+
+    public void setBidPrice(Double bidPrice) {
+        this.bidPrice = bidPrice;
+    }
+
+    public void setAskPrice(Double askPrice) {
+        this.askPrice = askPrice;
+    }
+
+    public void setTimestamp(ZonedDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }

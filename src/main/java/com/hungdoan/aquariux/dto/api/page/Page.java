@@ -9,6 +9,10 @@ public class Page<T> {
     private long totalElements;
     private int totalPages;
 
+    public Page() {
+        
+    }
+
     public Page(List<T> content, String lastId, int size, long totalElements) {
         this.content = content;
         this.lastId = lastId;
@@ -35,5 +39,25 @@ public class Page<T> {
 
     public int getTotalPages() {
         return totalPages;
+    }
+
+    public void setContent(List<T> content) {
+        this.content = content;
+    }
+
+    public void setLastId(String lastId) {
+        this.lastId = lastId;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public void setTotalElements(long totalElements) {
+        this.totalElements = totalElements;
+    }
+
+    public void setTotalPages(int totalPages) {
+        this.totalPages = totalPages;
     }
 }

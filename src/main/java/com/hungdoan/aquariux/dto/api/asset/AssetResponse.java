@@ -8,6 +8,10 @@ public class AssetResponse {
 
     private List<AssetBalance> assetBalances;
 
+    public AssetResponse() {
+
+    }
+
     public AssetResponse(String userId, List<AssetBalance> assetBalances) {
         this.userId = userId;
         this.assetBalances = assetBalances;
@@ -32,6 +36,10 @@ public class AssetResponse {
     public static class AssetBalance {
         private String cryptoType;
         private Double balance;
+
+        public AssetBalance() {
+
+        }
 
         public AssetBalance(String cryptoType, Double balance) {
             this.cryptoType = cryptoType;

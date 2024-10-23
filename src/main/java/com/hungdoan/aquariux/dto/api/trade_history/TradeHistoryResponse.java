@@ -12,6 +12,10 @@ public class TradeHistoryResponse {
     private Double tradePrice;
     private ZonedDateTime tradeTimestamp;
 
+    public TradeHistoryResponse() {
+
+    }
+
     public TradeHistoryResponse(String id, String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, ZonedDateTime tradeTimestamp) {
         this.id = id;
         this.userId = userId;
