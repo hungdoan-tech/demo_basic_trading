@@ -1,5 +1,6 @@
 package com.hungdoan.aquariux.common.extract;
 
+import com.hungdoan.aquariux.common.validation.Sortable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,10 +12,12 @@ class FieldsExtractorTest {
     private FieldsExtractor fieldsExtractor;
 
     class SuperClass {
+        @Sortable
         private String superField;
     }
 
     class DerivedClass extends SuperClass {
+        @Sortable
         private String derivedField;
     }
 
@@ -28,33 +31,33 @@ class FieldsExtractorTest {
 
     @Test
     void testFieldExistsInDerivedClass() {
-        assertTrue(fieldsExtractor.checkValidField("derivedField", DerivedClass.class));
+        assertTrue(fieldsExtractor.checkValidSortableField("derivedField", DerivedClass.class));
     }
 
     @Test
     void testFieldExistsInSuperClass() {
-        assertTrue(fieldsExtractor.checkValidField("superField", DerivedClass.class));
+        assertTrue(fieldsExtractor.checkValidSortableField("superField", DerivedClass.class));
     }
 
     @Test
     void testFieldDoesNotExist() {
-        assertFalse(fieldsExtractor.checkValidField("nonExistentField", DerivedClass.class));
+        assertFalse(fieldsExtractor.checkValidSortableField("nonExistentField", DerivedClass.class));
     }
 
     @Test
     void testFieldExistsNoInheritance() {
-        assertFalse(fieldsExtractor.checkValidField("someField", NoFieldClass.class));
+        assertFalse(fieldsExtractor.checkValidSortableField("someField", NoFieldClass.class));
     }
 
     @Test
     void testFieldCaseInsensitive() {
-        assertTrue(fieldsExtractor.checkValidField("SUPERFIELD", DerivedClass.class));
-        assertTrue(fieldsExtractor.checkValidField("derivedfield", DerivedClass.class));
+        assertTrue(fieldsExtractor.checkValidSortableField("SUPERFIELD", DerivedClass.class));
+        assertTrue(fieldsExtractor.checkValidSortableField("derivedfield", DerivedClass.class));
     }
 
     @Test
     void testFieldCaching() {
-        assertTrue(fieldsExtractor.checkValidField("derivedField", DerivedClass.class));
-        assertTrue(fieldsExtractor.checkValidField("derivedField", DerivedClass.class));
+        assertTrue(fieldsExtractor.checkValidSortableField("derivedField", DerivedClass.class));
+        assertTrue(fieldsExtractor.checkValidSortableField("derivedField", DerivedClass.class));
     }
 }

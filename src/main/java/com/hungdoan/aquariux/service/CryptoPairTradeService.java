@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class CryptoPairTradeService implements TradeService {
@@ -68,12 +67,12 @@ public class CryptoPairTradeService implements TradeService {
         List<Trade> trades = tradeRepository.getAllTrades(userId, pageRequest);
         List<TradeHistoryResponse> tradeHistoryResponse = trades.stream().map(trade -> new TradeHistoryResponse(trade.getId(),
                 trade.getUserId(), trade.getCryptoPair(), trade.getTradeType(), trade.getTradeAmount(),
-                trade.getTradePrice(), trade.getTradeTimestamp())).collect(Collectors.toUnmodifiableList());
+                trade.getTradePrice(), trade.getTradeTimestamp())).toList();
 
-        long totalElements = tradeRepository.countTrades(userId);  // Get total count
-        String lastId = trades.isEmpty() ? null : trades.get(trades.size() - 1).getId();  // Get the last ID
+        long totalElements = tradeRepository.countTrades(userId);
+        String lastId = trades.isEmpty() ? null : trades.get(trades.size() - 1).getId();
 
-        return new Page<TradeHistoryResponse>(tradeHistoryResponse, lastId, pageRequest.getPageSize(), totalElements);
+        return new Page<>(tradeHistoryResponse, lastId, pageRequest.getPageSize(), totalElements);
     }
 
 

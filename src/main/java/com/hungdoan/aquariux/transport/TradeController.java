@@ -57,7 +57,7 @@ public class TradeController {
         String userId = principal.getUser().getUserId();
 
         String actualSortField = sort.orElse("id");
-        if (!fieldsExtractor.checkValidField(actualSortField, Trade.class)) {
+        if (!fieldsExtractor.checkValidSortableField(actualSortField, Trade.class)) {
             ResponseEntity.badRequest().body(String.format("The _sort %s is not match with the system", sort));
         }
 
