@@ -2,6 +2,7 @@ package com.hungdoan.aquariux.transport;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hungdoan.aquariux.common.rate_limit.RateLimited;
 import com.hungdoan.aquariux.dto.CustomUserDetails;
 import com.hungdoan.aquariux.dto.api.asset.AssetResponse;
 import com.hungdoan.aquariux.model.Asset;
@@ -44,6 +45,7 @@ public class AssetController {
         this.hashingFunc = MessageDigest.getInstance("SHA-256");
     }
 
+    @RateLimited(requestAmount = 50, inSeconds = 5)
     @GetMapping
     public ResponseEntity<AssetResponse> getAssetsBalance(@RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch)
             throws JsonProcessingException {

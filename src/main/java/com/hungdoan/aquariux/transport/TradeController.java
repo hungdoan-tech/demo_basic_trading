@@ -1,6 +1,7 @@
 package com.hungdoan.aquariux.transport;
 
 import com.hungdoan.aquariux.common.extract.FieldsExtractor;
+import com.hungdoan.aquariux.common.rate_limit.RateLimited;
 import com.hungdoan.aquariux.dto.CustomUserDetails;
 import com.hungdoan.aquariux.dto.api.page.Page;
 import com.hungdoan.aquariux.dto.api.page.PageRequest;
@@ -36,7 +37,7 @@ public class TradeController {
         this.fieldsExtractor = fieldsExtractor;
     }
 
-
+    @RateLimited(requestAmount = 50, inSeconds = 60)
     @PostMapping
     public ResponseEntity<TradeResponse> executeTrade(@Valid @RequestBody TradeRequest tradeRequest) {
         CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -50,6 +51,7 @@ public class TradeController {
         return ResponseEntity.ok(tradeExecutedSuccessfully);
     }
 
+    @RateLimited(requestAmount = 100, inSeconds = 60)
     @GetMapping
     public ResponseEntity<Page<TradeHistoryResponse>> getTradeHistory(@RequestParam(value = "_order", required = false) Optional<String> order,
                                                                       @RequestParam(value = "_sort", required = false) Optional<String> sort,

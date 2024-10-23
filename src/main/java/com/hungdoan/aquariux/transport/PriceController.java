@@ -1,5 +1,6 @@
 package com.hungdoan.aquariux.transport;
 
+import com.hungdoan.aquariux.common.rate_limit.RateLimited;
 import com.hungdoan.aquariux.common.validation.CryptoPairValid;
 import com.hungdoan.aquariux.dto.api.price.PriceResponse;
 import com.hungdoan.aquariux.model.Price;
@@ -28,6 +29,7 @@ public class PriceController {
         this.priceService = priceService;
     }
 
+    @RateLimited(requestAmount = 50, inSeconds = 5)
     @GetMapping
     public ResponseEntity<List<PriceResponse>> getLatestPrices() {
         Map<String, Price> prices = priceService.getPrices();
@@ -38,6 +40,7 @@ public class PriceController {
         return ResponseEntity.ok(priceResponses);
     }
 
+    @RateLimited(requestAmount = 50, inSeconds = 60)
     @GetMapping("/{cryptoPair}")
     public ResponseEntity<PriceResponse> getLatestPrice(@Valid @CryptoPairValid @PathVariable("cryptoPair") String cryptoPair) {
         Optional<Price> optionalPrice = priceService.getPrice(cryptoPair);
