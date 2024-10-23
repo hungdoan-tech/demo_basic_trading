@@ -98,6 +98,10 @@ public class CryptoPairTradeService implements TradeService {
         }
         Double tradePrice = tradeType.equals("BUY") ? latestPrice.getAskPrice() : latestPrice.getBidPrice();
 
+        if (tradeAmount <= 0) {
+            throw new InvalidTrade("The trade amount is lower than zero");
+        }
+
         if (tradeType.equals("BUY")) {
             return buy(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
         }

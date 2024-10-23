@@ -45,7 +45,8 @@ public class AssetController {
     }
 
     @GetMapping
-    public ResponseEntity<AssetResponse> getAssetsBalance(@RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch) throws JsonProcessingException {
+    public ResponseEntity<AssetResponse> getAssetsBalance(@RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch)
+            throws JsonProcessingException {
         CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = principal.getUser().getUserId();
 

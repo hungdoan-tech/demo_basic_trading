@@ -2,6 +2,7 @@ package com.hungdoan.aquariux.transport;
 
 import com.hungdoan.aquariux.common.key.JwtProvider;
 import com.hungdoan.aquariux.dto.api.login.LoginRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,10 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class AuthenticationController {
 
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    private JwtProvider jwtProvider;
+    private final JwtProvider jwtProvider;
 
+    @Autowired
     public AuthenticationController(AuthenticationManager authenticationManager,
                                     JwtProvider jwtProvider) {
         this.authenticationManager = authenticationManager;
