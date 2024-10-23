@@ -2,6 +2,7 @@ package com.hungdoan.aquariux.transport;
 
 import com.hungdoan.aquariux.common.key.JwtProvider;
 import com.hungdoan.aquariux.dto.api.login.LoginRequest;
+import com.hungdoan.aquariux.dto.api.login.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,13 +30,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
-
         Authentication authenticate = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
         UserDetails userDetail = (UserDetails) authenticate.getPrincipal();
-        String newAccessToken = jwtProvider.generateToken(userDetail);
-        return ResponseEntity.ok(newAccessToken);
+        String accessToken = jwtProvider.generateToken(userDetail);
+        return ResponseEntity.ok(new LoginResponse(accessToken));
     }
 }
