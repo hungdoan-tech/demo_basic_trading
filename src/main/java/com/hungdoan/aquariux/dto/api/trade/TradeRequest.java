@@ -9,15 +9,17 @@ public class TradeRequest {
 
     @NotBlank(message = "Crypto pair is required")
     @CryptoPairValid
-    private final String cryptoPair;
+    private String cryptoPair;
 
     @NotBlank(message = "Trade type is required")
     @Pattern(regexp = "BUY|SELL", message = "Trade type must be either 'BUY' or 'SELL'")
-    private final String tradeType;
+    private String tradeType;
 
     @Min(value = 0, message = "Trade amount must be greater than 0")
-    private final Double tradeAmount;
+    private Double tradeAmount;
 
+    public TradeRequest() {
+    }
 
     public TradeRequest(String cryptoPair, String tradeType, Double tradeAmount) {
         this.cryptoPair = cryptoPair;
@@ -35,5 +37,17 @@ public class TradeRequest {
 
     public Double getTradeAmount() {
         return tradeAmount;
+    }
+
+    public void setCryptoPair(@NotBlank(message = "Crypto pair is required") String cryptoPair) {
+        this.cryptoPair = cryptoPair;
+    }
+
+    public void setTradeType(@NotBlank(message = "Trade type is required") @Pattern(regexp = "BUY|SELL", message = "Trade type must be either 'BUY' or 'SELL'") String tradeType) {
+        this.tradeType = tradeType;
+    }
+
+    public void setTradeAmount(@Min(value = 0, message = "Trade amount must be greater than 0") Double tradeAmount) {
+        this.tradeAmount = tradeAmount;
     }
 }
