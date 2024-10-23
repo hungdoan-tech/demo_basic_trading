@@ -42,9 +42,12 @@ public class TradeController {
         CustomUserDetails principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userId = principal.getUser().getUserId();
 
-        String tradeId = tradeService.executeTrade(userId, tradeRequest.getCryptoPair(),
+        Trade trade = tradeService.executeTrade(userId, tradeRequest.getCryptoPair(),
                 tradeRequest.getTradeType(), tradeRequest.getTradeAmount());
-        return ResponseEntity.ok(new TradeResponse(tradeId, "Trade executed successfully"));
+        TradeResponse tradeExecutedSuccessfully = new TradeResponse(trade.getId(), trade.getUserId(), trade.getCryptoPair(),
+                trade.getTradeType(), trade.getTradeAmount(), trade.getTradePrice(), trade.getTradeTimestamp(),
+                "Trade executed successfully");
+        return ResponseEntity.ok(tradeExecutedSuccessfully);
     }
 
     @GetMapping

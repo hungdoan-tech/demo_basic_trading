@@ -7,6 +7,7 @@ import com.hungdoan.aquariux.data_access.spec.TradeRepository;
 import com.hungdoan.aquariux.dto.api.page.Page;
 import com.hungdoan.aquariux.dto.api.page.PageRequest;
 import com.hungdoan.aquariux.dto.api.trade_history.TradeHistoryResponse;
+import com.hungdoan.aquariux.dto.event.TradeSuccessfullyEvent;
 import com.hungdoan.aquariux.exception.InvalidTrade;
 import com.hungdoan.aquariux.exception.OptimisticLockingFailureException;
 import com.hungdoan.aquariux.model.Asset;
@@ -16,6 +17,8 @@ import com.hungdoan.aquariux.service.spec.PriceService;
 import com.hungdoan.aquariux.service.spec.TradeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,16 +49,21 @@ public class CryptoPairTradeService implements TradeService {
 
     private final Set<String> validTradeTypes;
 
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
     public CryptoPairTradeService(PriceService priceService,
                                   CryptoPairExtractor cryptoPairExtractor,
                                   IdGenerator idGenerator,
                                   AssetRepository assetRepository,
-                                  TradeRepository tradeRepository) {
+                                  TradeRepository tradeRepository,
+                                  ApplicationEventPublisher applicationEventPublisher) {
         this.priceService = priceService;
         this.cryptoPairExtractor = cryptoPairExtractor;
         this.idGenerator = idGenerator;
         this.assetRepository = assetRepository;
         this.tradeRepository = tradeRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
         this.validTradeTypes = new HashSet<>();
         validTradeTypes.add("BUY");
         validTradeTypes.add("SELL");
@@ -77,7 +85,7 @@ public class CryptoPairTradeService implements TradeService {
 
 
     @Override
-    public String executeTrade(String userId, String cryptoPair, String tradeType, Double tradeAmount) {
+    public Trade executeTrade(String userId, String cryptoPair, String tradeType, Double tradeAmount) {
         String[] coins = cryptoPairExtractor.extractCurrencies(cryptoPair);
         if (coins.length != 2) {
             throw new InvalidTrade(String.format("Invalid crypto pair, the system does not support this pair %s",
@@ -102,14 +110,18 @@ public class CryptoPairTradeService implements TradeService {
             throw new InvalidTrade("The trade amount is lower than zero");
         }
 
+        Trade trade;
         if (tradeType.equals("BUY")) {
-            return buy(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
+            trade = buy(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
+        } else {
+            trade = sell(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
         }
-        return sell(userId, cryptoPair, tradeType, tradeAmount, tradePrice, baseCoin, quoteCoin);
+        applicationEventPublisher.publishEvent(new TradeSuccessfullyEvent(this, trade));
+        return trade;
     }
 
     @Transactional
-    private String buy(String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, String baseCoin, String quoteCoin) {
+    private Trade buy(String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, String baseCoin, String quoteCoin) {
 
         for (int attempt = 0; attempt < MAX_RETRIES_OPTIMISTIC_LOCK; attempt++) {
 
@@ -131,7 +143,7 @@ public class CryptoPairTradeService implements TradeService {
 
                 Trade trade = new Trade(idGenerator.getId(), userId, cryptoPair, tradeType, tradeAmount, totalCost, ZonedDateTime.now());
                 tradeRepository.save(trade);
-                return trade.getId();
+                return trade;
 
             } catch (OptimisticLockingFailureException e) {
                 LOG.warn("Optimistic locking failure for Trade Buy {}, retrying... Attempt: {}",
@@ -151,7 +163,7 @@ public class CryptoPairTradeService implements TradeService {
     }
 
     @Transactional
-    private String sell(String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, String baseCoin, String quoteCoin) {
+    private Trade sell(String userId, String cryptoPair, String tradeType, Double tradeAmount, Double tradePrice, String baseCoin, String quoteCoin) {
         for (int attempt = 0; attempt < MAX_RETRIES_OPTIMISTIC_LOCK; attempt++) {
 
             try {
@@ -170,7 +182,7 @@ public class CryptoPairTradeService implements TradeService {
 
                 Trade trade = new Trade(idGenerator.getId(), userId, cryptoPair, tradeType, tradeAmount, totalRevenue, ZonedDateTime.now());
                 tradeRepository.save(trade);
-                return trade.getId();
+                return trade;
 
             } catch (OptimisticLockingFailureException e) {
                 LOG.warn("Optimistic locking failure for Trade Sell {}, retrying... Attempt: {}",

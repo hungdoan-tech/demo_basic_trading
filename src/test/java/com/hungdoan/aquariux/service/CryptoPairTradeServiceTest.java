@@ -13,6 +13,7 @@ import com.hungdoan.aquariux.service.spec.PriceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -40,12 +41,13 @@ class CryptoPairTradeServiceTest {
 
     @BeforeEach
     void setUp() {
-        priceService = mock(PriceService.class);
         cryptoPairExtractor = spy(CryptoPairExtractor.class);
+        priceService = mock(PriceService.class);
         idGenerator = mock(IdGenerator.class);
         assetRepository = mock(AssetRepository.class);
         tradeRepository = mock(TradeRepository.class);
-        tradeService = new CryptoPairTradeService(priceService, cryptoPairExtractor, idGenerator, assetRepository, tradeRepository);
+        ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
+        tradeService = new CryptoPairTradeService(priceService, cryptoPairExtractor, idGenerator, assetRepository, tradeRepository, applicationEventPublisher);
     }
 
     @Test
