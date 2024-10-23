@@ -18,8 +18,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private static final Map<String, User> cache = new HashMap<>();
 
-    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
