@@ -1,8 +1,10 @@
 package com.hungdoan.aquariux.transport;
 
+import com.hungdoan.aquariux.common.validation.CryptoPairValid;
 import com.hungdoan.aquariux.dto.api.price.PriceResponse;
 import com.hungdoan.aquariux.model.Price;
 import com.hungdoan.aquariux.service.spec.PriceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +39,7 @@ public class PriceController {
     }
 
     @GetMapping("/{cryptoPair}")
-    public ResponseEntity<PriceResponse> getLatestPrice(@PathVariable("cryptoPair") String cryptoPair) {
+    public ResponseEntity<PriceResponse> getLatestPrice(@Valid @CryptoPairValid @PathVariable("cryptoPair") String cryptoPair) {
         Optional<Price> optionalPrice = priceService.getPrice(cryptoPair);
         if (optionalPrice.isEmpty()) {
             return ResponseEntity.notFound().build();

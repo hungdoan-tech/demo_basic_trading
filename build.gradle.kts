@@ -23,6 +23,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-M:2.15.2")
     implementation("org.flywaydb:flyway-core")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
